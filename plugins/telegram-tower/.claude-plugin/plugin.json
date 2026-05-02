@@ -1,0 +1,13 @@
+{
+  "name": "telegram-tower",
+  "version": "0.2.0",
+  "description": "Spawn, list, resume, and kill Claude Code sessions with Remote Control enabled. Designed to be driven from a Telegram channel dispatcher.",
+  "author": {
+    "name": "Avi"
+  },
+  "keywords": [
+    "telegram",
+    "remote-control",
+    "session-management"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "avi-claude-forge",
+  "description": "Avi's personal Claude Code marketplace — plugins, skills, and agents for orchestrating Claude Code workflows.",
+  "owner": {
+    "name": "Avi"
+  },
+  "plugins": [
+    {
+      "name": "telegram-tower",
+      "description": "Spawn, list, resume, and kill Claude Code sessions with Remote Control enabled. Designed to be driven from a Telegram channel dispatcher.",
+      "version": "0.2.0",
+      "source": "./plugins/telegram-tower",
+      "category": "productivity",
+      "keywords": [
+        "telegram",
+        "remote-control",
+        "session-management",
+        "dispatcher"
+      ]
+    }
+  ]
+}
