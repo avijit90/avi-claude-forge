@@ -1,8 +1,6 @@
 # avi-claude-forge
 
-Avi's personal Claude Code marketplace.
-
-A curated collection of plugins, skills, and agents for orchestrating Claude Code workflows. Built first for personal use; public so others can clone and adapt anything that fits.
+A Claude Code marketplace of plugins, skills, and agents for orchestrating Claude Code workflows.
 
 ## Plugins
 
@@ -12,17 +10,9 @@ A curated collection of plugins, skills, and agents for orchestrating Claude Cod
 
 ## Install
 
-Add the marketplace, then install plugins individually:
-
 ```
 /plugin marketplace add avijit90/avi-claude-forge
 /plugin install telegram-tower@avi-claude-forge
-```
-
-For local development against a clone:
-
-```
-/plugin marketplace add /path/to/avi-claude-forge
 ```
 
 After install, run `/reload-plugins` to activate.
@@ -40,7 +30,7 @@ avi-claude-forge/
 ├── .claude-plugin/
 │   └── marketplace.json     # catalog
 ├── plugins/
-│   └── telegram-tower/      # first plugin
+│   └── telegram-tower/
 │       ├── .claude-plugin/plugin.json
 │       ├── commands/
 │       └── README.md

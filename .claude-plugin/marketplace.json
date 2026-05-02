@@ -1,9 +1,9 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "avi-claude-forge",
-  "description": "Avi's personal Claude Code marketplace — plugins, skills, and agents for orchestrating Claude Code workflows.",
+  "description": "A Claude Code marketplace of plugins, skills, and agents for orchestrating Claude Code workflows.",
   "owner": {
-    "name": "Avi"
+    "name": "avijit90"
   },
   "plugins": [
     {

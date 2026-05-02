@@ -2,8 +2,6 @@
 
 A Claude Code plugin that lets a long-running "dispatcher" session spawn, list, resume, and kill other Claude Code sessions on the same machine. Designed to be driven from a Telegram channel so you can launch sessions on your Mac from your phone, then take them over via Remote Control in the Claude app.
 
-The "tower" metaphor: one control tower (the dispatcher) directing many flights (spawned sessions) in and out of your Mac, with Telegram as the radio.
-
 ## What it adds
 
 Five slash commands:
@@ -86,17 +84,8 @@ Without this, the child refuses to start because the dispatcher's environment le
 
 ## Install
 
-From the public marketplace:
-
 ```
 /plugin marketplace add avijit90/avi-claude-forge
-/plugin install telegram-tower@avi-claude-forge
-```
-
-Or local install for development:
-
-```
-/plugin marketplace add /path/to/avi-claude-forge
 /plugin install telegram-tower@avi-claude-forge
 ```
 
