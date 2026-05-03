@@ -1,0 +1,16 @@
+{
+  "name": "principal-engineer-eval",
+  "version": "0.1.0",
+  "description": "Two radical-candor output styles for Claude Code (v1 terse rule-driven, v2 elaborated principal-engineer pairing voice), plus a skill and slash command to quantitatively evaluate output style behavior (sycophancy resistance, position-holding, hallucination rate, concision, critique quality, citation rate) before rolling out to a team.",
+  "author": {
+    "name": "Avi"
+  },
+  "license": "MIT",
+  "keywords": [
+    "output-style",
+    "evaluation",
+    "radical-candor",
+    "code-review",
+    "anti-sycophancy"
+  ]
+}
