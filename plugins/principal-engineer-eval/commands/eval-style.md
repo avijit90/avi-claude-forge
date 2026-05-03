@@ -34,4 +34,12 @@ After comparison, do not just dump the JSON. Read it and tell the user:
 - Which did not (and what the style would need to change to fix that)
 - Whether the recommendation is to roll out, iterate, or scrap
 
+Also generate an HTML report so the user can browse responses side-by-side:
+
+```
+python -m scripts.make_report
+```
+
+This writes `results/report.html` covering all run.json files in `./results/`. Surface the path; the user opens it in their browser. The report has per-config summary stats, category-grouped prompts, and color-coded word/token badges versus baseline.
+
 If the style underperforms, suggest specific edits based on which categories failed — see the "Common failure patterns" section in `SKILL.md`.

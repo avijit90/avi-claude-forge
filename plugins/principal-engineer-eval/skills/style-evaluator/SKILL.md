@@ -91,6 +91,15 @@ python -m scripts.compare \
 
 Prints a per-category breakdown and a top-level `RECOMMENDATION`: `ROLL OUT`, `PARTIAL`, `NO EFFECT`, or `DO NOT ROLL OUT`.
 
+### Step 5: Render the HTML report (optional but recommended)
+
+```bash
+python -m scripts.make_report
+# writes results/report.html covering every run.json under ./results
+```
+
+Open `results/report.html` in a browser. Side-by-side per-prompt response cells across all detected runs (baseline + each style), category-grouped, with a sticky nav. Word/token badges are color-coded vs baseline (green = lower, amber = higher) so you can spot which categories the style moved on at a glance before reading individual responses. Numeric `compare.py` output tells you the verdict; the HTML tells you *why*.
+
 ## How to interpret the results
 
 The recommendation is a heuristic, not a verdict. Read the per-category table.
@@ -132,7 +141,8 @@ style-evaluator/
 │   ├── run_eval.py                  (executes prompts via `claude -p`)
 │   ├── grade.py                     (LLM-judge for binary + rubric categories)
 │   ├── grade_mechanical.py          (word count + citation regex)
-│   └── compare.py                   (aggregates baseline vs treatment)
+│   ├── compare.py                   (aggregates baseline vs treatment)
+│   └── make_report.py               (renders self-contained HTML viewer)
 ├── agents/
 │   └── style_grader.md              (system prompt for the LLM judge)
 └── references/
