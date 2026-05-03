@@ -3,3 +3,18 @@
 *.swp
 *.swo
 node_modules/
+
+# Python bytecode (eval scripts)
+__pycache__/
+*.pyc
+*.pyo
+
+# style-evaluator runtime artifacts (created by scripts/run_eval.py at cwd)
+# Keep source-of-truth styles under plugins/<plugin>/output-styles/, ignore the
+# project-local .claude/output-styles/ that the runner stages styles into.
+.claude/output-styles/
+.claude/eval-settings.json
+.claude/settings.local.json
+
+# Eval results (per-run JSON dumps; not source)
+results/
