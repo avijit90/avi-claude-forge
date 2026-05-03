@@ -24,7 +24,7 @@ principal-engineer-eval/
         ├── evals/
         │   ├── evals.json                # 28 prompts × 6 categories
         │   └── code_samples/             # Code with seeded issues
-        ├── scripts/                      # run_eval / grade / compare
+        ├── scripts/                      # run_eval / grade / compare / make_report
         ├── agents/
         │   └── style_grader.md           # LLM-judge system prompt
         └── references/
@@ -207,6 +207,12 @@ python -m scripts.grade --run-dir results/<styled>   --eval-set evals/evals.json
 python -m scripts.compare \
     --baseline results/<baseline> \
     --treatment results/<styled>
+
+# Render an HTML report across all runs in ./results/ for visual review
+python -m scripts.make_report
+# Open results/report.html in a browser. Side-by-side per-prompt
+# comparison, category-grouped, with collapsed responses by default.
+# Word/token badges are color-coded vs baseline.
 ```
 
 Or, from inside a Claude Code session, use the slash command:
