@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bundled self-test for the auto-approve-permissions hook.
+"""Bundled self-test for the lgtm hook.
 
 Spins up a temporary CLAUDE_PROJECT_DIR with a known set of deny rules,
 feeds canned tool-call payloads to approve.py via stdin, and asserts each
@@ -68,7 +68,7 @@ UNKNOWN_RULE_DEFER_CASE = (
 def run_approve(payload: dict, project_dir: Path) -> dict:
     env = os.environ.copy()
     env["CLAUDE_PROJECT_DIR"] = str(project_dir)
-    env["AUTO_APPROVE_LOG_FILE"] = ""  # suppress logging during tests
+    env["LGTM_LOG_FILE"] = ""  # suppress logging during tests
     proc = subprocess.run(
         ["python3", str(APPROVE)],
         input=json.dumps(payload),
@@ -113,7 +113,7 @@ def main() -> int:
         print(f"ERROR: cannot find approve.py at {APPROVE}", file=sys.stderr)
         return 2
 
-    with tempfile.TemporaryDirectory(prefix="auto-approve-test-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="lgtm-test-") as tmp:
         project = Path(tmp)
         write_settings(project, DENY_RULES)
 

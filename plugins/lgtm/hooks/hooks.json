@@ -1,5 +1,5 @@
 {
-  "description": "Auto-approve PreToolUse permission prompts unless the call matches a permissions.deny rule from settings.",
+  "description": "lgtm: stamp PreToolUse calls 'Looks Good To Me' (allow) unless they match a permissions.deny rule from settings.",
   "hooks": {
     "PreToolUse": [
       {

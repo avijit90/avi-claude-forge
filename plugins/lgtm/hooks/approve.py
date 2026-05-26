@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse hook: default-allow, defer denies.
+"""lgtm — PreToolUse hook: stamp "Looks Good To Me" unless denied.
 
 Returns permissionDecision="allow" for tool calls that do not match any
 permissions.deny rule found in user/project settings. Returns "deny" for
@@ -13,8 +13,8 @@ Settings sources scanned (all merged for deny rules):
   - $CLAUDE_PROJECT_DIR/.claude/settings.local.json
 
 Every decision is appended as a JSON line to:
-  ${AUTO_APPROVE_LOG_FILE:-~/.claude/logs/auto-approve-permissions.jsonl}
-Set AUTO_APPROVE_LOG_FILE to an empty string to disable logging.
+  ${LGTM_LOG_FILE:-~/.claude/logs/lgtm.jsonl}
+Set LGTM_LOG_FILE to an empty string to disable logging.
 """
 
 from __future__ import annotations
@@ -155,24 +155,24 @@ def evaluate(tool_name: str, tool_input: dict[str, Any], deny_rules: list[str]) 
     for rule in deny_rules:
         status, why = match_rule(rule, tool_name, tool_input)
         if status == "match":
-            return "deny", f"auto-approve hook: matched deny rule {rule!r} — {why}"
+            return "deny", f"lgtm: matched deny rule {rule!r} — {why}"
         if status == "unknown":
             ambiguous.append(rule)
     if ambiguous:
         return "ask", (
-            "auto-approve hook: deferring to Claude Code's permission engine because "
+            "lgtm: deferring to Claude Code's permission engine because "
             f"these deny rules could not be evaluated by the hook: {ambiguous}"
         )
-    return "allow", "auto-approve hook: no deny rule matched"
+    return "allow", "lgtm: no deny rule matched"
 
 
 def resolve_log_path() -> Path | None:
-    override = os.environ.get("AUTO_APPROVE_LOG_FILE")
+    override = os.environ.get("LGTM_LOG_FILE")
     if override is not None:
         if override == "":
             return None
         return Path(override).expanduser()
-    return Path.home() / ".claude" / "logs" / "auto-approve-permissions.jsonl"
+    return Path.home() / ".claude" / "logs" / "lgtm.jsonl"
 
 
 def _excerpt_input(tool_input: dict[str, Any]) -> dict[str, Any]:
@@ -224,7 +224,7 @@ def main() -> int:
     try:
         payload = json.load(sys.stdin)
     except json.JSONDecodeError:
-        emit("ask", "auto-approve hook: malformed payload, deferring")
+        emit("ask", "lgtm: malformed payload, deferring")
         return 0
 
     tool_name = payload.get("tool_name", "")
