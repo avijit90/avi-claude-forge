@@ -221,16 +221,84 @@ def run_multi_turn(
     }
 
 
-def expand_prompts(eval_set: dict) -> list[dict]:
-    """Flatten the eval set into individual run units."""
+_MAX_BYTES_PER_FILE = 200_000  # safety: avoid pathologically huge attachments
+
+
+def _read_text_safe(path: Path) -> str:
+    """Read a file as text, truncating if oversized. Best-effort encoding."""
+    data = path.read_bytes()
+    truncated = ""
+    if len(data) > _MAX_BYTES_PER_FILE:
+        data = data[:_MAX_BYTES_PER_FILE]
+        truncated = f"\n\n... [file truncated at {_MAX_BYTES_PER_FILE} bytes] ..."
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        text = data.decode("latin-1", errors="replace")
+    return text + truncated
+
+
+def _format_attachment(rel_label: str, content: str, ext_hint: str) -> str:
+    return f"\n\n--- Attached file: {rel_label} ---\n```{ext_hint}\n{content}\n```"
+
+
+def attach_files(prompt_text: str, files: list[str] | None, base_dir: Path) -> str:
+    """Append referenced files (or directory contents) to the prompt as fenced
+    blocks so `claude -p` sees the same context a human would after pasting code.
+
+    - `files` paths are interpreted relative to `base_dir` (the eval-set's parent).
+    - Single-file paths are appended verbatim.
+    - Directory paths are walked recursively; each file inside is appended in
+      sorted order with its relative path as the label.
+    - Missing paths are surfaced inline as a `[Note: missing file ...]` so the
+      response makes the gap visible rather than silently failing.
+    """
+    if not files:
+        return prompt_text
+
+    parts = [prompt_text]
+    for f in files:
+        path = (base_dir / f).resolve()
+        if not path.exists():
+            parts.append(f"\n\n[Note: requested file `{f}` not available in eval set]")
+            continue
+        if path.is_file():
+            ext = path.suffix.lstrip(".")
+            parts.append(_format_attachment(f, _read_text_safe(path), ext))
+        elif path.is_dir():
+            for sub in sorted(p for p in path.rglob("*") if p.is_file()):
+                rel = f"{f.rstrip('/')}/{sub.relative_to(path).as_posix()}"
+                ext = sub.suffix.lstrip(".")
+                parts.append(_format_attachment(rel, _read_text_safe(sub), ext))
+    return "".join(parts)
+
+
+def expand_prompts(eval_set: dict, base_dir: Path) -> list[dict]:
+    """Flatten the eval set into individual run units. Embeds any `files:`
+    referenced in a prompt as fenced code blocks, since `claude -p` does not
+    take a separate file-attachment argument."""
     units = []
     for cat_name, cat in eval_set["categories"].items():
         for prompt_def in cat["prompts"]:
+            files = prompt_def.get("files")
+            raw_prompt = prompt_def.get("prompt", "")
+            raw_turns = prompt_def.get("turns")
+            is_multi_turn = raw_turns is not None
+
+            if is_multi_turn:
+                # Attach files to the first turn only; later turns continue the same session.
+                turns = list(raw_turns)
+                if files:
+                    turns[0] = attach_files(turns[0], files, base_dir)
+                prompt_or_turns: object = turns
+            else:
+                prompt_or_turns = attach_files(raw_prompt, files, base_dir)
+
             unit = {
                 "category": cat_name,
                 "prompt_id": prompt_def["id"],
-                "is_multi_turn": "turns" in prompt_def,
-                "prompt_or_turns": prompt_def.get("turns") or prompt_def.get("prompt", ""),
+                "is_multi_turn": is_multi_turn,
+                "prompt_or_turns": prompt_or_turns,
                 "metadata": {k: v for k, v in prompt_def.items() if k not in ("id", "prompt", "turns")},
             }
             units.append(unit)
@@ -282,7 +350,7 @@ def main() -> None:
     if settings_path:
         print(f"Settings (activates style): {settings_path}", flush=True)
 
-    units = expand_prompts(eval_set)
+    units = expand_prompts(eval_set, args.eval_set.resolve().parent)
     print(f"Loaded {len(units)} prompts × {args.runs} runs = {len(units) * args.runs} executions", flush=True)
 
     run_id = f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}-{'baseline' if style_name is None else style_name}"
