@@ -7,11 +7,14 @@ calls that confidently match a deny rule, and "ask" (defer to Claude Code's
 own permission engine) when a deny rule's syntax isn't understood by this
 matcher.
 
-Settings sources scanned (later entries override on conflict, all merged
-for deny rules):
+Settings sources scanned (all merged for deny rules):
   - ~/.claude/settings.json
   - $CLAUDE_PROJECT_DIR/.claude/settings.json
   - $CLAUDE_PROJECT_DIR/.claude/settings.local.json
+
+Every decision is appended as a JSON line to:
+  ${AUTO_APPROVE_LOG_FILE:-~/.claude/logs/auto-approve-permissions.jsonl}
+Set AUTO_APPROVE_LOG_FILE to an empty string to disable logging.
 """
 
 from __future__ import annotations
@@ -21,6 +24,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -31,8 +35,7 @@ FILE_TOOLS = {"Read", "Write", "Edit", "Glob", "NotebookEdit", "NotebookRead", "
 
 def load_deny_rules() -> list[str]:
     paths: list[Path] = []
-    home_settings = Path.home() / ".claude" / "settings.json"
-    paths.append(home_settings)
+    paths.append(Path.home() / ".claude" / "settings.json")
 
     project_dir = os.environ.get("CLAUDE_PROJECT_DIR")
     if project_dir:
@@ -72,6 +75,39 @@ def tool_name_matches(rule_tool: str, tool_name: str) -> bool:
     return False
 
 
+def path_matches(val: str, pattern: str) -> bool:
+    """Match a path against a Claude Code-style permission glob.
+
+    fnmatch alone doesn't honor `**` as recursive (it treats `**` as just `*`),
+    so `Read(**/.env)` against bare `.env` would miss. We layer extra rules
+    on top: `**/X` means "X at any depth, including root", `X/**` means
+    "anything inside X/", and a bare basename matches anywhere in the path.
+    """
+    if fnmatch.fnmatch(val, pattern):
+        return True
+
+    if pattern.startswith("**/"):
+        suffix = pattern[3:]
+        if fnmatch.fnmatch(val, suffix):
+            return True
+        # Try every right-anchored subpath, so config/foo/.env still matches.
+        parts = val.split("/")
+        for i in range(len(parts)):
+            if fnmatch.fnmatch("/".join(parts[i:]), suffix):
+                return True
+
+    if pattern.endswith("/**"):
+        prefix = pattern[:-3]
+        if val == prefix or val.startswith(prefix + "/"):
+            return True
+
+    # Bare basename pattern (no separator) matches if any path component matches.
+    if "/" not in pattern and fnmatch.fnmatch(os.path.basename(val), pattern):
+        return True
+
+    return False
+
+
 def match_rule(rule: str, tool_name: str, tool_input: dict[str, Any]) -> tuple[str, str]:
     """Return (status, reason). status ∈ {'match', 'no_match', 'unknown'}."""
     parsed = parse_rule(rule)
@@ -107,7 +143,7 @@ def match_rule(rule: str, tool_name: str, tool_input: dict[str, Any]) -> tuple[s
         for key in FILE_PATH_KEYS:
             val = tool_input.get(key)
             if isinstance(val, str):
-                ok = fnmatch.fnmatch(val, rule_arg) or fnmatch.fnmatch(val, "**/" + rule_arg)
+                ok = path_matches(val, rule_arg)
                 return ("match" if ok else "no_match", f"{key}={val!r} vs glob {rule_arg!r}")
         return "no_match", "no file path in tool_input"
 
@@ -130,12 +166,65 @@ def evaluate(tool_name: str, tool_input: dict[str, Any], deny_rules: list[str]) 
     return "allow", "auto-approve hook: no deny rule matched"
 
 
+def resolve_log_path() -> Path | None:
+    override = os.environ.get("AUTO_APPROVE_LOG_FILE")
+    if override is not None:
+        if override == "":
+            return None
+        return Path(override).expanduser()
+    return Path.home() / ".claude" / "logs" / "auto-approve-permissions.jsonl"
+
+
+def _excerpt_input(tool_input: dict[str, Any]) -> dict[str, Any]:
+    """Trim tool_input for logging so secrets/blobs don't bloat the log."""
+    out = {}
+    for k, v in tool_input.items():
+        if isinstance(v, str) and len(v) > 200:
+            out[k] = v[:200] + f"... ({len(v)} chars)"
+        else:
+            out[k] = v
+    return out
+
+
+def log_decision(tool_name: str, tool_input: dict[str, Any], decision: str, reason: str) -> None:
+    log_path = resolve_log_path()
+    if log_path is None:
+        return
+    try:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        entry = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "tool": tool_name,
+            "decision": decision,
+            "reason": reason,
+            "input": _excerpt_input(tool_input),
+            "cwd": os.environ.get("CLAUDE_PROJECT_DIR", ""),
+        }
+        with log_path.open("a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except OSError:
+        # Logging must never break tool execution.
+        pass
+
+
+def emit(decision: str, reason: str) -> None:
+    out = {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": decision,
+            "permissionDecisionReason": reason,
+        },
+        "systemMessage": reason,
+        "suppressOutput": True,
+    }
+    json.dump(out, sys.stdout)
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin)
     except json.JSONDecodeError:
-        # Don't block tool execution on a malformed hook payload — defer.
-        json.dump({"hookSpecificOutput": {"permissionDecision": "ask"}}, sys.stdout)
+        emit("ask", "auto-approve hook: malformed payload, deferring")
         return 0
 
     tool_name = payload.get("tool_name", "")
@@ -143,13 +232,8 @@ def main() -> int:
 
     deny_rules = load_deny_rules()
     decision, reason = evaluate(tool_name, tool_input, deny_rules)
-
-    out = {
-        "hookSpecificOutput": {"permissionDecision": decision},
-        "systemMessage": reason,
-        "suppressOutput": True,
-    }
-    json.dump(out, sys.stdout)
+    log_decision(tool_name, tool_input, decision, reason)
+    emit(decision, reason)
     return 0
 
 
