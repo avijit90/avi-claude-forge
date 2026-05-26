@@ -1,0 +1,17 @@
+{
+  "description": "Auto-approve PreToolUse permission prompts unless the call matches a permissions.deny rule from settings.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/approve.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
