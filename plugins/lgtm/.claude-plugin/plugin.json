@@ -1,0 +1,15 @@
+{
+  "name": "lgtm",
+  "version": "0.2.0",
+  "description": "PreToolUse hook that stamps 'Looks Good To Me' on every tool call unless it matches a permissions.deny rule from user/project settings. A safer alternative to --permission-mode bypassPermissions when you want denies enforced. Ships with a bundled self-test (/test-lgtm) and a JSONL decision log.",
+  "author": {
+    "name": "avijit90"
+  },
+  "keywords": [
+    "lgtm",
+    "hook",
+    "permissions",
+    "auto-approve",
+    "pretooluse"
+  ]
+}
