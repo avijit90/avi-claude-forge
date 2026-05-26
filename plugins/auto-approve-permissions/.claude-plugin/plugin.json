@@ -1,0 +1,14 @@
+{
+  "name": "auto-approve-permissions",
+  "version": "0.1.0",
+  "description": "PreToolUse hook that auto-approves permission prompts while still honoring permissions.deny rules from user/project settings. A safer alternative to --permission-mode bypassPermissions when you want denies enforced.",
+  "author": {
+    "name": "avijit90"
+  },
+  "keywords": [
+    "hook",
+    "permissions",
+    "auto-approve",
+    "pretooluse"
+  ]
+}
