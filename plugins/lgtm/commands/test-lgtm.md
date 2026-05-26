@@ -7,7 +7,7 @@ Run the bundled test suite for the lgtm plugin. The test runner spins up a tempo
 Execute:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/run-tests.py"
+"${CLAUDE_PLUGIN_ROOT}/scripts/run-tests.js"
 ```
 
 If `${CLAUDE_PLUGIN_ROOT}` is not set in your shell (it's only injected into hooks, not slash-command bash), fall back to the absolute path printed by `/hooks`, or pass the path explicitly.

@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/approve.py",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/approve.js",
             "timeout": 5
           }
         ]

@@ -55,8 +55,10 @@ Runs the bundled self-test (18 cases covering each deny-rule shape, plus envelop
 You can also run the test script directly:
 
 ```
-$(claude --debug 2>&1 | grep -o '/.*lgtm/hooks/approve.py' | head -1 | xargs dirname | xargs dirname)/scripts/run-tests.py
+$(claude --debug 2>&1 | grep -o '/.*lgtm/hooks/approve.js' | head -1 | xargs dirname | xargs dirname)/scripts/run-tests.js
 ```
+
+Both the hook and the test runner are plain Node scripts (`#!/usr/bin/env node`). Zero external dependencies — they use the same Node runtime Claude Code already ships with.
 
 ## Observability
 
