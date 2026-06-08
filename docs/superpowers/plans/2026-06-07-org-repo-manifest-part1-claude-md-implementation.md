@@ -1578,7 +1578,7 @@ Write `plugins/org-repo-manifest/evals/claude-md-auditor/evals.json`:
     {
       "id": "oversized",
       "path": "fixtures/oversized/",
-      "defect": "CLAUDE.md exceeds 150 lines",
+      "defect": "CLAUDE.md is under the 150-line cap but has poor signal-to-noise: run-on Purpose paragraph, multi-paragraph Architecture buzzword soup, 20 padded gotcha bullets, verbose Conventions prose. Conciseness should tank on signal-to-noise even though the line cap is technically respected.",
       "hard_assertions": {
         "criterion_max_grade": {
           "Conciseness": "C"
@@ -1586,8 +1586,8 @@ Write `plugins/org-repo-manifest/evals/claude-md-auditor/evals.json`:
         "must_return_replacement_for_sections": []
       },
       "soft_check_findings_substrings": [
-        "lines",
-        "150"
+        "signal",
+        "verbose"
       ]
     },
     {
