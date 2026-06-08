@@ -1,0 +1,15 @@
+{
+  "name": "org-repo-manifest",
+  "version": "0.1.0",
+  "description": "Draft and audit CLAUDE.md files for enterprise microservice and MFE repos against an org rubric. Ships /draft-claude-md (interactive skill) and /audit-claude-md (read-only agent that scores 7 criteria and proposes section replacements).",
+  "author": {
+    "name": "avijit90"
+  },
+  "keywords": [
+    "claude-md",
+    "documentation",
+    "audit",
+    "enterprise",
+    "org-standards"
+  ]
+}
