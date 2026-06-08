@@ -1,0 +1,85 @@
+{
+  "suite": "claude-md-drafting",
+  "version": "0.1.0",
+  "description": "Assertions for the claude-md-drafting skill against fixtures of realistic repos. Run manually in v1: invoke /draft-claude-md in each fixture directory, feed the answers.txt inputs when prompted, then check the produced CLAUDE.md against the assertions below.",
+  "fixtures": [
+    {
+      "id": "node-service",
+      "path": "fixtures/node-service/",
+      "stack": "Node + Express + TypeScript",
+      "hard_assertions": {
+        "max_lines": 150,
+        "required_section_headers_exact": [
+          "## Purpose",
+          "## Features",
+          "## Architecture",
+          "## Commands",
+          "## Gotchas",
+          "## Conventions",
+          "## Reference"
+        ],
+        "commands_section_must_contain": [
+          "npm install",
+          "npm test",
+          "npm run build",
+          "npm start"
+        ],
+        "conventions_section_non_empty": true,
+        "conventions_section_must_reference_at_least_n_canonical_rules": 5
+      }
+    },
+    {
+      "id": "spring-boot",
+      "path": "fixtures/spring-boot/",
+      "stack": "JVM + Spring Boot + Maven",
+      "hard_assertions": {
+        "max_lines": 150,
+        "required_section_headers_exact": [
+          "## Purpose",
+          "## Features",
+          "## Architecture",
+          "## Commands",
+          "## Gotchas",
+          "## Conventions",
+          "## Reference"
+        ],
+        "commands_section_must_contain_regex": [
+          "(^|\\s)mvn(\\s|$)"
+        ],
+        "commands_section_must_not_contain": [
+          "mvnw"
+        ],
+        "conventions_section_non_empty": true,
+        "conventions_section_must_reference_at_least_n_canonical_rules": 5
+      }
+    },
+    {
+      "id": "react-mfe",
+      "path": "fixtures/react-mfe/",
+      "stack": "React 18 + webpack",
+      "hard_assertions": {
+        "max_lines": 150,
+        "required_section_headers_exact": [
+          "## Purpose",
+          "## Features",
+          "## Architecture",
+          "## Commands",
+          "## Gotchas",
+          "## Conventions",
+          "## Reference"
+        ],
+        "commands_section_must_contain": [
+          "npm install",
+          "npm test",
+          "webpack"
+        ],
+        "conventions_section_non_empty": true,
+        "conventions_section_must_reference_at_least_n_canonical_rules": 5,
+        "conventions_must_include_frontend_rule_topics": [
+          "function components",
+          "useEffect"
+        ]
+      }
+    }
+  ]
+}
