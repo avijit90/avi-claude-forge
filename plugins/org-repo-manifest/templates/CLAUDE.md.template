@@ -1,0 +1,32 @@
+# {{REPO_NAME}}
+
+## Purpose
+
+{{PURPOSE}}
+
+## Features
+
+{{FEATURES}}
+
+## Architecture
+
+{{ARCHITECTURE}}
+
+## Commands
+
+```bash
+{{COMMANDS}}
+```
+
+## Gotchas
+
+{{GOTCHAS}}
+
+## Conventions
+
+{{CONVENTIONS}}
+
+## Reference
+
+See `docs/` for:
+{{REFERENCE_INDEX}}
