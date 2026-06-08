@@ -1,0 +1,86 @@
+{
+  "suite": "claude-md-auditor",
+  "version": "0.1.0",
+  "description": "Assertions for the claude-md-auditor agent against fixtures with planted defects. Run manually in v1: invoke /audit-claude-md against each fixture, then check the report against the assertions below.",
+  "fixtures": [
+    {
+      "id": "missing-section",
+      "path": "fixtures/missing-section/",
+      "defect": "Commands section is missing from CLAUDE.md",
+      "hard_assertions": {
+        "criterion_max_grade": {
+          "Commands & workflows": "C",
+          "Actionability": "C"
+        },
+        "must_return_replacement_for_sections": []
+      },
+      "soft_check_findings_substrings": [
+        "Commands",
+        "missing"
+      ]
+    },
+    {
+      "id": "stale-architecture",
+      "path": "fixtures/stale-architecture/",
+      "defect": "Architecture section says Flask+SQLite; pyproject.toml and src/main.py show FastAPI+Postgres",
+      "hard_assertions": {
+        "criterion_max_grade": {
+          "Currency": "C",
+          "Architecture clarity": "C"
+        },
+        "must_return_replacement_for_sections": ["Architecture"],
+        "currency_finding_must_name_subcause": "repo drift"
+      },
+      "soft_check_findings_substrings": [
+        "Architecture",
+        "stale"
+      ]
+    },
+    {
+      "id": "vague-features",
+      "path": "fixtures/vague-features/",
+      "defect": "Features section is generic and non-specific (\"various utilities\", \"other stuff\")",
+      "hard_assertions": {
+        "criterion_max_grade": {
+          "Purpose & Features clarity": "C"
+        },
+        "must_return_replacement_for_sections": ["Features"]
+      },
+      "soft_check_findings_substrings": [
+        "Features",
+        "vague"
+      ]
+    },
+    {
+      "id": "oversized",
+      "path": "fixtures/oversized/",
+      "defect": "CLAUDE.md is under the 150-line cap but has poor signal-to-noise: run-on Purpose paragraph, multi-paragraph Architecture buzzword soup, 20 padded gotcha bullets, verbose Conventions prose. Conciseness should tank on signal-to-noise even though the line cap is technically respected.",
+      "hard_assertions": {
+        "criterion_max_grade": {
+          "Conciseness": "C"
+        },
+        "must_return_replacement_for_sections": []
+      },
+      "soft_check_findings_substrings": [
+        "signal",
+        "verbose"
+      ]
+    },
+    {
+      "id": "conventions-drift",
+      "path": "fixtures/conventions-drift/",
+      "defect": "Conventions section actively contradicts templates/conventions.md (uses console.log, no correlation IDs, catch-all)",
+      "hard_assertions": {
+        "criterion_max_grade": {
+          "Currency": "C"
+        },
+        "must_return_replacement_for_sections": ["Conventions"],
+        "currency_finding_must_name_subcause": "convention drift"
+      },
+      "soft_check_findings_substrings": [
+        "Conventions",
+        "drift"
+      ]
+    }
+  ]
+}
