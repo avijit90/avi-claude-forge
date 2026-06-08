@@ -1,0 +1,8 @@
+{
+  "name": "legacy-service",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest",
+    "start": "node src/server.js"
+  }
+}
