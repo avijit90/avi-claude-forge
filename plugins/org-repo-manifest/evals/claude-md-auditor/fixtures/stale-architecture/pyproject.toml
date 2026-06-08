@@ -1,0 +1,10 @@
+[project]
+name = "orders"
+version = "1.0.0"
+dependencies = [
+  "fastapi>=0.100",
+  "uvicorn",
+  "sqlalchemy>=2.0",
+  "psycopg2-binary",
+  "alembic"
+]
