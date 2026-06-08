@@ -1,0 +1,11 @@
+Purpose: Checkout micro-frontend embedded by the host shell. Owns the cart-review, address-entry, and payment-method-pick steps.
+Features:
+- CartReview component — shows line items, totals, discounts
+- AddressForm component — collects/validates shipping address
+- PaymentPicker component — wraps the payment-sdk iframe
+- Emits checkout-completed event on success
+Architecture (confirm/edit): React 18 SPA bundled by webpack, entry src/index.tsx. State local to each step; no shared store. Communication with host via window.postMessage.
+Gotchas:
+- The host shell catches our errors; do not throw across the boundary, post error events instead
+- Adjacent: payment-sdk is loaded by host; we only render its iframe
+Conventions: 1, 4, 9, 10, 11, 13, 15, 24, 25, 26, 27
