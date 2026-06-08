@@ -1,0 +1,10 @@
+Purpose: Receives notification requests from upstream services and dispatches them to the appropriate channel (email/SMS/push). Owns the dispatch retry policy.
+Features:
+- POST /notify — accept a notification payload and route to channel
+- Subscribes to user-preference-changed events to update routing rules
+- Exposes /healthz and /metrics for probes
+Architecture (confirm/edit): Express HTTP server, src/server.ts. No DB in v1; routing rules in memory.
+Gotchas:
+- Retry policy is exponential; do not stack policies in the routing rule
+- Adjacent: user-preferences-service owns the rules; we read-only
+Conventions: 1, 2, 3, 4, 5, 6, 7, 9, 10, 13, 14, 15, 17, 18, 21, 22
